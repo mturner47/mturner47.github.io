@@ -1,26 +1,106 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      #FaceUpCards {
+        font-size: 1.5em;
+      }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+      var _turnCards = [];
+      var _faceUpCards = [];
+      var _faceDownCards = [];
+      var _nemesisCards = ["Nemesis", "Nemesis"];
+      var _gemOptions = ["Burning Opal", "Clouded Sapphire", "Diamond Cluster", "Jade", "Searing Ruby", "Sifter's Pearl", "V'riswood Amber"];
+      var _relicOptions = ["Blasting Staff", "Bottled Vortex", "Flexing Dagger", "Focusing Orb", "Mage's Talisman", "Unstable Prism"];
+      var _spellOptions = ["Amplify Vision", "Arcane Nexus", "Chaos Arc", "Consuming Void", "Dark Fire", "Essence Theft", "Feral Lightning", "Ignite", "Lava Tendril", "Oblivion Swell", "Phoenix Flame", "Planar Insight", "Spectral Echo", "Wildfire Whip"];
+      $(function() {
+        $("#StartButton").click(function() {
+          $("#GameSetupContainer").hide();
+          $("#GameContainer").show();
+          var selectedCheckBoxes = $("input.turn-order-checkbox:checked").toArray();
+          _turnCards = _nemesisCards.concat(selectedCheckBoxes.map(x => x.value));
+          shuffleFaceDownCards();
+        });
+
+        $("#RestartButton").click(function() {
+          $("#MarketCards").html("");
+          $("#GameSetupContainer").show();
+          $("#GameContainer").hide();
+        });
+
+        $("#NextTurnButton").click(function() {
+          if (_faceDownCards.length <= 0) {
+            shuffleFaceDownCards();
+          }
+          _faceUpCards.push(_faceDownCards.pop());
+          updateDisplay();
+        });
+
+        $("#GetMarketCardsButton").click(function() {
+          var selectedGems = shuffle(_gemOptions).slice(0, 3);
+          var selectedRelics = shuffle(_relicOptions).slice(0, 2);
+          var selectedSpells = shuffle(_spellOptions).slice(0, 4);
+          var selectedCardText = "<p>Gems: " + selectedGems.join(", ") + "</p>"
+            + "<p>Relics: " + selectedRelics.join(", ") + "</p>"
+            + "<p>Spells: " + selectedSpells.join(", ") + "</p>";
+          $("#MarketCards").html(selectedCardText);
+        });
+      });
+
+      function updateDisplay() {
+        $("#FaceUpCards").html(_faceUpCards.join(", "));
+      }
+
+      function shuffleFaceDownCards() {
+        _faceDownCards = shuffle(_turnCards);
+        _faceUpCards = [];
+        $("#FaceUpCards").html("");
+      }
+
+      function shuffle(originalArray) {
+        var array = originalArray.map(x => x)
+        for (let i = array.length - 1; i > 0; i--) {
+          let j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+    </script>
+  </head>
   <body>
-    <h1>Hello World</h1>
-    <h2>Player Turn Order Cards to Use:</h2>
-    <p>
-      <label><input type="checkbox" id="1a" />1a</label>
-      <label><input type="checkbox" id="1b" />1b</label>
-    </p>
-    <p>
-      <label><input type="checkbox" id="2a" />2a</label>
-      <label><input type="checkbox" id="2b" />2b</label>
-    </p>
-    <p><label><input type="checkbox" id="3" />3</label></p>
-    <p><label><input type="checkbox" id="4" />4</label></p>
-    <p><label><input type="checkbox" id="Wild" />Wild</label></p>
-    <p>
-      <label><input type="checkbox" id="1/2a" />1/2a</label>
-      <label><input type="checkbox" id="1/2b" />1/2b</label>
-    </p>
-    <p>
-      <label><input type="checkbox" id="3/4a" />3/4a</label>
-      <label><input type="checkbox" id="3/4b" />3/4b</label>
-    </p>
+    <div id="GameSetupContainer">
+      <h2>Market Cards</h2>
+      <input id="GetMarketCardsButton" type="button" value="Get Market Cards" />
+      <div id="MarketCards"></div>
+      <h2>Player Turn Order Cards to Use:</h2>
+      <p>
+        <label><input class="turn-order-checkbox" type="checkbox" value="1" />1a</label>
+        <label><input class="turn-order-checkbox" type="checkbox" value="1" />1b</label>
+      </p>
+      <p>
+        <label><input class="turn-order-checkbox" type="checkbox" value="2" />2a</label>
+        <label><input class="turn-order-checkbox" type="checkbox" value="2" />2b</label>
+      </p>
+      <p><label><input class="turn-order-checkbox" type="checkbox" value="3" />3</label></p>
+      <p><label><input class="turn-order-checkbox" type="checkbox" value="4" />4</label></p>
+      <p><label><input class="turn-order-checkbox" type="checkbox" value="Wild" />Wild</label></p>
+      <p>
+        <label><input class="turn-order-checkbox" type="checkbox" value="1/2" />1/2a</label>
+        <label><input class="turn-order-checkbox" type="checkbox" value="1/2" />1/2b</label>
+      </p>
+      <p>
+        <label><input class="turn-order-checkbox" type="checkbox" value="3/4" />3/4a</label>
+        <label><input class="turn-order-checkbox" type="checkbox" value="3/4" />3/4b</label>
+      </p>
+      <input id="StartButton" type="button" value="Start Game" />
+    </div>
+    <div id="GameContainer" style="display:none;">
+      <input id="RestartButton" type="button" value="Restart Selection" />
+      <input id="NextTurnButton" type="button" value="Next Turn" />
+    </div>
+    <p id="FaceUpCards"></p>
   </body>
 </html>
