@@ -1,106 +1,80 @@
-<!DOCTYPE html>
 <html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-      #FaceUpCards {
-        font-size: 1.5em;
-      }
-    </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script>
-      var _turnCards = [];
-      var _faceUpCards = [];
-      var _faceDownCards = [];
-      var _nemesisCards = ["Nemesis", "Nemesis"];
-      var _gemOptions = ["Burning Opal", "Clouded Sapphire", "Diamond Cluster", "Jade", "Searing Ruby", "Sifter's Pearl", "V'riswood Amber"];
-      var _relicOptions = ["Blasting Staff", "Bottled Vortex", "Flexing Dagger", "Focusing Orb", "Mage's Talisman", "Unstable Prism"];
-      var _spellOptions = ["Amplify Vision", "Arcane Nexus", "Chaos Arc", "Consuming Void", "Dark Fire", "Essence Theft", "Feral Lightning", "Ignite", "Lava Tendril", "Oblivion Swell", "Phoenix Flame", "Planar Insight", "Spectral Echo", "Wildfire Whip"];
-      $(function() {
-        $("#StartButton").click(function() {
-          $("#GameSetupContainer").hide();
-          $("#GameContainer").show();
-          var selectedCheckBoxes = $("input.turn-order-checkbox:checked").toArray();
-          _turnCards = _nemesisCards.concat(selectedCheckBoxes.map(x => x.value));
-          shuffleFaceDownCards();
-        });
+    <body>
+        <input style="width:700px" id="nameInput" type="text" value="Deb, Amy, Ivan, Jeremy, Luke, Jonathan, Paige, Sarah, Brennan, Nate, Becks, Matt, Dede, Karyn, Ben, Karol, Mark, Joelle" />
+        <input type="button" onclick="generateGrid()" value="Generate Super Bowl Squares"/>
+        <table id="grid"></table>
+        <script>
+            function shuffleArray(array) {
+                let currentIndex = array.length;
+                let randomIndex;
 
-        $("#RestartButton").click(function() {
-          $("#MarketCards").html("");
-          $("#GameSetupContainer").show();
-          $("#GameContainer").hide();
-        });
+                while (currentIndex > 0) {
+                    randomIndex = Math.floor(Math.random()*currentIndex);
+                    currentIndex--;
 
-        $("#NextTurnButton").click(function() {
-          if (_faceDownCards.length <= 0) {
-            shuffleFaceDownCards();
-          }
-          _faceUpCards.push(_faceDownCards.pop());
-          updateDisplay();
-        });
+                    let temp = array[randomIndex];
+                    array[randomIndex] = array[currentIndex];
+                    array[currentIndex] = temp;
+                }
+                return array;
+            }
 
-        $("#GetMarketCardsButton").click(function() {
-          var selectedGems = shuffle(_gemOptions).slice(0, 3);
-          var selectedRelics = shuffle(_relicOptions).slice(0, 2);
-          var selectedSpells = shuffle(_spellOptions).slice(0, 4);
-          var selectedCardText = "<p>Gems: " + selectedGems.join(", ") + "</p>"
-            + "<p>Relics: " + selectedRelics.join(", ") + "</p>"
-            + "<p>Spells: " + selectedSpells.join(", ") + "</p>";
-          $("#MarketCards").html(selectedCardText);
-        });
-      });
+            function generateGrid() {
+                let rowNumbers = shuffleArray([0,1,2,3,4,5,6,7,8,9]);
+                let colNumbers = shuffleArray([0,1,2,3,4,5,6,7,8,9]);
+                let people = document.getElementById("nameInput").value.split(",").map(function(n) { return n.trim(); });
 
-      function updateDisplay() {
-        $("#FaceUpCards").html(_faceUpCards.join(", "));
-      }
+                let cells = [];
+                let cellCount = 100;
+                while (cells.length < cellCount) {
+                    cells = cells.concat(people);
+                }
+                cells = shuffleArray(cells.slice(0, 100));
 
-      function shuffleFaceDownCards() {
-        _faceDownCards = shuffle(_turnCards);
-        _faceUpCards = [];
-        $("#FaceUpCards").html("");
-      }
+                let html = '<tr><th rowspan="2" colspan="2"><img style="width:100px;height:auto;" src="football.png" /></th><th colspan="10"><img src="ChiefsLogo.jpg"></th></tr>';
+                html += "<tr>" + rowNumbers.map(function(n) { return "<th>" + n + "</th>"; }).join("") + "</tr>";
+                for (var i = 0; i < 10; i++) {
+                    html += "<tr>";
+                    if (i == 0) {
+                        html += '<th rowspan="10"><img src="EaglesLogo.jpg"></th>';
+                    } else {
+                        html += '<th style="display:none;"></th>'
+                    }
+                    html += "<th>" + colNumbers[i] + "</th>";
+                    html += cells.slice(i*10, (i+1)*10).map(function(n) { return "<td class='name-cell'>" + n + "</td>"; }).join("");
+                    html += "</tr>";
+                }
+                document.getElementById("grid").innerHTML = html;
+            }
+        </script>
+        <style>
+            table#grid {
+                text-align: center;
+                border-collapse: collapse;
+            }
 
-      function shuffle(originalArray) {
-        var array = originalArray.map(x => x)
-        for (let i = array.length - 1; i > 0; i--) {
-          let j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-      }
-    </script>
-  </head>
-  <body>
-    <div id="GameSetupContainer">
-      <h2>Market Cards</h2>
-      <input id="GetMarketCardsButton" type="button" value="Get Market Cards" />
-      <div id="MarketCards"></div>
-      <h2>Player Turn Order Cards to Use:</h2>
-      <p>
-        <label><input class="turn-order-checkbox" type="checkbox" value="1" />1a</label>
-        <label><input class="turn-order-checkbox" type="checkbox" value="1" />1b</label>
-      </p>
-      <p>
-        <label><input class="turn-order-checkbox" type="checkbox" value="2" />2a</label>
-        <label><input class="turn-order-checkbox" type="checkbox" value="2" />2b</label>
-      </p>
-      <p><label><input class="turn-order-checkbox" type="checkbox" value="3" />3</label></p>
-      <p><label><input class="turn-order-checkbox" type="checkbox" value="4" />4</label></p>
-      <p><label><input class="turn-order-checkbox" type="checkbox" value="Wild" />Wild</label></p>
-      <p>
-        <label><input class="turn-order-checkbox" type="checkbox" value="1/2" />1/2a</label>
-        <label><input class="turn-order-checkbox" type="checkbox" value="1/2" />1/2b</label>
-      </p>
-      <p>
-        <label><input class="turn-order-checkbox" type="checkbox" value="3/4" />3/4a</label>
-        <label><input class="turn-order-checkbox" type="checkbox" value="3/4" />3/4b</label>
-      </p>
-      <input id="StartButton" type="button" value="Start Game" />
-    </div>
-    <div id="GameContainer" style="display:none;">
-      <input id="RestartButton" type="button" value="Restart Selection" />
-      <input id="NextTurnButton" type="button" value="Next Turn" />
-    </div>
-    <p id="FaceUpCards"></p>
-  </body>
+            table#grid th {
+                width: 50px;
+                height: 50px;
+                font-size: 30px;
+            }
+
+            table#grid td {
+                width: 50px;
+                height: 50px;
+                font-size: 15px;
+                font-weight: bold;
+            }
+
+            table#grid tr:nth-child(odd) td.name-cell:nth-child(even),
+            table#grid tr:nth-child(even) td.name-cell:nth-child(odd) {
+                background-color: pink;
+            }
+
+            table#grid tr:nth-child(odd) td.name-cell:nth-child(odd),
+            table#grid tr:nth-child(even) td.name-cell:nth-child(even) {
+                background-color: rgb(109, 214, 214);
+            }
+        </style>
+    </body>
 </html>
