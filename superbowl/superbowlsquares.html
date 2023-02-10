@@ -1,0 +1,80 @@
+<html>
+    <body>
+        <input style="width:700px" id="nameInput" type="text" value="Deb, Amy, Ivan, Jeremy, Luke, Jonathan, Paige, Sarah, Brennan, Nate, Becks, Matt, Dede, Karyn, Ben, Karol, Mark, Joelle" />
+        <input type="button" onclick="generateGrid()" value="Generate Super Bowl Squares"/>
+        <table id="grid"></table>
+        <script>
+            function shuffleArray(array) {
+                let currentIndex = array.length;
+                let randomIndex;
+
+                while (currentIndex > 0) {
+                    randomIndex = Math.floor(Math.random()*currentIndex);
+                    currentIndex--;
+
+                    let temp = array[randomIndex];
+                    array[randomIndex] = array[currentIndex];
+                    array[currentIndex] = temp;
+                }
+                return array;
+            }
+
+            function generateGrid() {
+                let rowNumbers = shuffleArray([0,1,2,3,4,5,6,7,8,9]);
+                let colNumbers = shuffleArray([0,1,2,3,4,5,6,7,8,9]);
+                let people = document.getElementById("nameInput").value.split(",").map(function(n) { return n.trim(); });
+
+                let cells = [];
+                let cellCount = 100;
+                while (cells.length < cellCount) {
+                    cells = cells.concat(people);
+                }
+                cells = shuffleArray(cells.slice(0, 100));
+
+                let html = '<tr><th rowspan="2" colspan="2"><img style="width:100px;height:auto;" src="football.png" /></th><th colspan="10"><img src="ChiefsLogo.jpg"></th></tr>';
+                html += "<tr>" + rowNumbers.map(function(n) { return "<th>" + n + "</th>"; }).join("") + "</tr>";
+                for (var i = 0; i < 10; i++) {
+                    html += "<tr>";
+                    if (i == 0) {
+                        html += '<th rowspan="10"><img src="EaglesLogo.jpg"></th>';
+                    } else {
+                        html += '<th style="display:none;"></th>'
+                    }
+                    html += "<th>" + colNumbers[i] + "</th>";
+                    html += cells.slice(i*10, (i+1)*10).map(function(n) { return "<td class='name-cell'>" + n + "</td>"; }).join("");
+                    html += "</tr>";
+                }
+                document.getElementById("grid").innerHTML = html;
+            }
+        </script>
+        <style>
+            table#grid {
+                text-align: center;
+                border-collapse: collapse;
+            }
+
+            table#grid th {
+                width: 50px;
+                height: 50px;
+                font-size: 30px;
+            }
+
+            table#grid td {
+                width: 50px;
+                height: 50px;
+                font-size: 15px;
+                font-weight: bold;
+            }
+
+            table#grid tr:nth-child(odd) td.name-cell:nth-child(even),
+            table#grid tr:nth-child(even) td.name-cell:nth-child(odd) {
+                background-color: pink;
+            }
+
+            table#grid tr:nth-child(odd) td.name-cell:nth-child(odd),
+            table#grid tr:nth-child(even) td.name-cell:nth-child(even) {
+                background-color: rgb(109, 214, 214);
+            }
+        </style>
+    </body>
+</html>
